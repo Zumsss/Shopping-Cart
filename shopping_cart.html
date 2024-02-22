@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stephotec Shopping Cart</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        #cart {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+    
+</head>
+<body>
+    <h1>Stephotec Shopping Mall</h1>
+    <label>Select a Product</label>
+    <select id="products">
+        <option value="Butter">Butter</option>
+        <option value="Sugar">Sugar</option>
+        <option value="Bama">Bama</option>
+        <option value="Coffee">Coffee</option>
+        <option value="Bread">Bread</option>
+        <option value="Rice">Rice</option>
+    </select>
+
+    <label>Qty: </label><input type="number" id="qty" min="1">
+
+    <button id="btn" onclick="addToCart()" disabled>Add To Cart</button>
+    <hr>
+    <div id="cart">Total Item: <b><span id="cartitem">0</span></b></div>
+    <div id="mycart" style="background-color: bisque; padding: 15px;"></div>
+
+    <script>
+        
+            const arr_product = [];
+            const arr_quantity = [];
+            const arr_price = [];
+            const price = {
+                Butter: 700,
+                Sugar: 1650,
+                Bama: 2700,
+                Coffee: 1400,
+                Bread: 1300,
+                Rice: 5000
+            };
+
+            document.getElementById('qty').addEventListener('input', enableBtn);
+
+            function enableBtn() {
+                let q = document.getElementById('qty').value;
+                if (q !== "") {
+                    document.getElementById('btn').removeAttribute("disabled");
+                } else {
+                    document.getElementById('btn').setAttribute("disabled", "disabled");
+                }
+            }
+
+            function addToCart() {
+                let product = document.getElementById('products').value;
+                let quantity = document.getElementById('qty').value;
+                let pr = price[product];
+
+                if (arr_product.indexOf(product) === -1) {
+                    arr_product.push(product);
+                    arr_quantity.push(parseInt(quantity)); // Ensure quantity is parsed as integer
+                    arr_price.push(pr);
+                } else {
+                    let old_qty = arr_quantity[arr_product.indexOf(product)];
+                    arr_quantity[arr_product.indexOf(product)] = Number(old_qty) + parseInt(quantity);
+                }
+
+                refreshCart();
+            }
+
+            function removeItem(index) {
+                arr_product.splice(index, 1);
+                arr_quantity.splice(index, 1);
+                arr_price.splice(index, 1);
+                refreshCart();
+            }
+
+            function refreshCart() {
+                let all_p = "<table border='5'><tr><th>Products</th><th>Quantity</th><th>Price</th><th>Total</th></tr>";
+                let totalitem = 0;
+                let totalPrice = 0;
+                for (let i = 0; i < arr_product.length; i++) {
+                    all_p += `<tr>
+                                <td>${arr_product[i]}</td>
+                                <td style='text-align:center;'>
+                                    <button onclick="minus(${i})" style='margin-right:10px;'> - </button>${arr_quantity[i]}
+                                    <button onclick="plus(${i})" style='margin:0px 10px;'> + </button>
+                                    <button onclick="removeItem(${i})"> Remove </button>
+                                </td>
+                                <td>${arr_price[i]}</td>
+                                <td>${arr_price[i] * arr_quantity[i]}</td>
+                            </tr>`;
+
+                    totalitem += Number(arr_quantity[i]);
+                    totalPrice += arr_price[i] * arr_quantity[i];
+                }
+                all_p += `<tr style="text-align: center; padding:10px; font-weight: bold; background-color: #f0f0f0; font-size: large;"><td colspan="3">Total Price of items</td><td>${totalPrice}</td></tr>`;
+                all_p += "</table>";
+
+                document.getElementById('mycart').innerHTML = all_p;
+                document.getElementById('cartitem').innerHTML = totalitem;
+            }
+
+            function plus(selected_index) {
+                let old_qty = arr_quantity[selected_index];
+                arr_quantity[selected_index] = Number(old_qty) + 1;
+                refreshCart();
+            }
+
+            function minus(selected_index) {
+                let old_qty = arr_quantity[selected_index];
+                if (old_qty > 1) {
+                    arr_quantity[selected_index] = Number(old_qty) - 1;
+                } else {
+                    alert("Item can not be less than one");
+                }
+                refreshCart();
+            }
+        
+    </script>
+</body>
+</html>
